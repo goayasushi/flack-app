@@ -8,9 +8,9 @@
   <body>
     <h1>Hello, For文!</h1>
     <ul>
-      {% for bullet in bullets %}
+      {% for bullet in bullets %} {% if loop.index % 3 != 0 %}
       <li>{{bullet}}</li>
-      {% endfor %}
+      {% endif %} {% endfor %}
     </ul>
   </body>
 </html>
