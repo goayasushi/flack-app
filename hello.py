@@ -3,6 +3,6 @@ from flask import render_template
 
 app = Flask(__name__)
 
-@app.route("/")
-def hello_world():
-    return render_template("hello.html")
+@app.route("/japan/<city>")
+def hello_world(city):
+    return render_template("hello.html",city = city)
