@@ -28,9 +28,11 @@ class Post(db.Model):
 with app.app_context():
     db.create_all()
 
-@app.route("/")
+@app.route("/", methods=["GET", "POST"])
 def index():
-    return render_template("index.html")
+    if request.method == "GET":
+        posts = Post.query.all()
+        return render_template("index.html", posts = posts)
 
 @app.route("/create", methods=["GET", "POST"])
 def create():
