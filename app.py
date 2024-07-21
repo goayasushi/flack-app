@@ -1,5 +1,5 @@
 from flask import Flask
-from flask import render_template
+from flask import render_template, request, redirect
 from flask_sqlalchemy import SQLAlchemy
 from datetime import datetime
 import pytz
@@ -10,13 +10,13 @@ load_dotenv()
 
 app = Flask(__name__)
 
-DB_USERNAME = os.getenv('DB_USERNAME')
-DB_PASSWORD = os.getenv('DB_PASSWORD')
-DB_NAME = os.getenv('DB_NAME')
-DB_HOST = os.getenv('DB_HOST')
+DB_USERNAME = os.getenv("DB_USERNAME")
+DB_PASSWORD = os.getenv("DB_PASSWORD")
+DB_NAME = os.getenv("DB_NAME")
+DB_HOST = os.getenv("DB_HOST")
 
-app.config['SQLALCHEMY_DATABASE_URI'] = f'postgresql://{DB_USERNAME}:{DB_PASSWORD}@{DB_HOST}/{DB_NAME}'
-app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
+app.config["SQLALCHEMY_DATABASE_URI"] = f"postgresql://{DB_USERNAME}:{DB_PASSWORD}@{DB_HOST}/{DB_NAME}"
+app.config["SQLALCHEMY_TRACK_MODIFICATIONS"] = False
 db = SQLAlchemy(app)
 
 class Post(db.Model):
@@ -31,3 +31,17 @@ with app.app_context():
 @app.route("/")
 def index():
     return render_template("index.html")
+
+@app.route("/create", methods=["GET", "POST"])
+def create():
+    if request.method == "POST":
+        title = request.form.get("title")
+        body = request.form.get("body")
+
+        post = Post(title=title, body=body)
+
+        db.session.add(post)
+        db.session.commit()
+        return redirect("/")
+    else:
+        return render_template("create.html")
