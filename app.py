@@ -1,16 +1,32 @@
 from flask import Flask
 from flask import render_template
+from flask_sqlalchemy import SQLAlchemy
+from datetime import datetime
+import pytz
+import os
+from dotenv import load_dotenv
+
+load_dotenv()
 
 app = Flask(__name__)
 
-bullets = [
-    "箇条書き1",
-    "箇条書き2",
-    "箇条書き3",
-    "箇条書き4",
-    "箇条書き5",
-    "箇条書き6",
-]
+DB_USERNAME = os.getenv('DB_USERNAME')
+DB_PASSWORD = os.getenv('DB_PASSWORD')
+DB_NAME = os.getenv('DB_NAME')
+DB_HOST = os.getenv('DB_HOST')
+
+app.config['SQLALCHEMY_DATABASE_URI'] = f'postgresql://{DB_USERNAME}:{DB_PASSWORD}@{DB_HOST}/{DB_NAME}'
+app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
+db = SQLAlchemy(app)
+
+class Post(db.Model):
+    id = db.Column(db.Integer, primary_key=True)
+    title = db.Column(db.String(50), nullable=False)
+    body = db.Column(db.String(300), nullable=False)
+    created_at = db.Column(db.DateTime, nullable=False, default=datetime.now(pytz.timezone("Asia/Tokyo")))
+
+with app.app_context():
+    db.create_all()
 
 @app.route("/")
 def index():
