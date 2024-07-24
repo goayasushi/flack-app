@@ -31,7 +31,7 @@ with app.app_context():
 @app.route("/", methods=["GET", "POST"])
 def index():
     if request.method == "GET":
-        posts = Post.query.all()
+        posts = Post.query.order_by(Post.created_at.desc()).all()
         return render_template("index.html", posts = posts)
 
 @app.route("/create", methods=["GET", "POST"])
@@ -53,12 +53,9 @@ def update(id):
     post = Post.query.get(id)
     if request.method == "GET":
         return render_template("update.html", post=post)
-    # else:
-    #     title = request.form.get("title")
-    #     body = request.form.get("body")
+    else:
+        post.title = request.form.get("title")
+        post.body = request.form.get("body")
 
-    #     post = Post(title=title, body=body)
-
-    #     db.session.add(post)
-    #     db.session.commit()
-    #     return redirect("/")
+        db.session.commit()
+        return redirect("/")
