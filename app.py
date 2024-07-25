@@ -35,7 +35,7 @@ class Post(db.Model):
 class User(UserMixin, db.Model):
     id = db.Column(db.Integer, primary_key=True)
     username = db.Column(db.String(30), unique=True)
-    password = db.Column(db.String(12))
+    password = db.Column(db.String(128))
 
 @login_manager.user_loader
 def load_user(user_id):
@@ -57,7 +57,7 @@ def signup():
         username = request.form.get("username")
         password = request.form.get("password")
 
-        user = User(username=username, password=generate_password_hash(password, "sha256"))
+        user = User(username=username, password=generate_password_hash(password, method="pbkdf2:sha256"))
 
         db.session.add(user)
         db.session.commit()
