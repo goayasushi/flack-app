@@ -23,7 +23,7 @@ class Post(db.Model):
     id = db.Column(db.Integer, primary_key=True)
     title = db.Column(db.String(50), nullable=False)
     body = db.Column(db.String(300), nullable=False)
-    created_at = db.Column(db.DateTime, nullable=False, default=datetime.now(pytz.timezone("Asia/Tokyo")))
+    created_at = db.Column(db.DateTime, nullable=False, default=lambda: datetime.now(pytz.timezone("Asia/Tokyo")))
 
 with app.app_context():
     db.create_all()
