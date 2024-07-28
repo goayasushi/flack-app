@@ -1,5 +1,5 @@
 from flask import Flask
-from flask import render_template, request, redirect
+from flask import render_template, request, redirect, flash
 from flask_sqlalchemy import SQLAlchemy
 from flask_login import UserMixin, LoginManager, login_user, logout_user, login_required
 from werkzeug.security import generate_password_hash, check_password_hash
@@ -71,11 +71,19 @@ def login():
     if request.method == "POST":
         username = request.form.get("username")
         password = request.form.get("password")
+        print(username, password)
+        if not username or not password:
+            flash("ユーザー名とパスワードは必須です。")
+            return redirect("/login")
 
         user = User.query.filter_by(username=username).first()
-        if check_password_hash(user.password, password):
-            login_user(user)
-            return redirect("/")
+        if user is None or not check_password_hash(user.password, password):
+            flash("ユーザー名またはパスワードが正しくありません。")
+            return redirect("/login")
+        
+        login_user(user)
+        return redirect("/")
+    
     else:
         return render_template("login.html")
 
