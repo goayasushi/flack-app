@@ -2,6 +2,7 @@ from flask import Flask
 from flask import render_template, request, redirect, flash
 from flask_sqlalchemy import SQLAlchemy
 from flask_login import UserMixin, LoginManager, login_user, logout_user, login_required
+from sqlalchemy.exc import IntegrityError
 from werkzeug.security import generate_password_hash, check_password_hash
 
 from datetime import datetime
@@ -57,11 +58,25 @@ def signup():
     if request.method == "POST":
         username = request.form.get("username")
         password = request.form.get("password")
+        if not username or not password:
+            flash("ユーザー名とパスワードは必須です。")
+            return redirect("/signup")
+        
+        existing_user = User.query.filter_by(username=username).first()
+        if existing_user:
+            flash("このユーザー名は既に登録されています。")
+            return redirect("/signup")
 
         user = User(username=username, password=generate_password_hash(password, method="pbkdf2:sha256"))
 
         db.session.add(user)
-        db.session.commit()
+        try:
+            db.session.commit()
+        except IntegrityError:
+            db.session.rollback()
+            flash("ユーザー登録中にエラーが発生しました。")
+            return redirect("/signup")
+        
         return redirect("/login")
     else:
         return render_template("signup.html")
